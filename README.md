@@ -1,4 +1,3 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/LsTaLPbx)
 
 <!-- README.md is generated from README.Rmd. Please edit the README.Rmd file -->
 
@@ -26,6 +25,23 @@ Extract from the data below two data sets in long form `deaths` and
 `returns`
 
 ``` r
+library(dplyr)
+```
+
+    ## 
+    ## Attaching package: 'dplyr'
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     filter, lag
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     intersect, setdiff, setequal, union
+
+``` r
+library(tidyr)
+library(readr)
 av <- read.csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/avengers/avengers.csv", stringsAsFactors = FALSE)
 head(av)
 ```
@@ -72,10 +88,81 @@ between 1 and 5 (look into the function `parse_number`); Death is a
 categorical variables with values “yes”, “no” and ““. Call the resulting
 data set `deaths`.
 
+``` r
+deaths <- av |>
+  select(Name.Alias, starts_with("Death")) |>
+  pivot_longer(
+    cols= starts_with("Death"),
+    names_to = "Time",
+    values_to = "Death"
+    ) |>
+  mutate(
+    Time = parse_number(Time)
+  ) |>
+  filter(Death != "") |>
+  mutate(Death = tolower(Death))
+
+head(deaths, n=10)
+```
+
+    ## # A tibble: 10 × 3
+    ##    Name.Alias                       Time Death
+    ##    <chr>                           <dbl> <chr>
+    ##  1 "Henry Jonathan \"Hank\" Pym"       1 yes  
+    ##  2 "Janet van Dyne"                    1 yes  
+    ##  3 "Anthony Edward \"Tony\" Stark"     1 yes  
+    ##  4 "Robert Bruce Banner"               1 yes  
+    ##  5 "Thor Odinson"                      1 yes  
+    ##  6 "Thor Odinson"                      2 yes  
+    ##  7 "Richard Milhouse Jones"            1 no   
+    ##  8 "Steven Rogers"                     1 yes  
+    ##  9 "Clinton Francis Barton"            1 yes  
+    ## 10 "Clinton Francis Barton"            2 yes
+
 Similarly, deal with the returns of characters.
+
+``` r
+return <- av |>
+  select(Name.Alias, starts_with("Return")) |>
+  pivot_longer(
+    cols= starts_with("Return"),
+    names_to= "Time",
+    values_to= "Return"
+  ) |>
+  mutate(Time= parse_number(Time)) |>
+  filter(Return != "") |>
+  mutate(Return = tolower(Return))
+
+head(return, n= 10)
+```
+
+    ## # A tibble: 10 × 3
+    ##    Name.Alias                       Time Return
+    ##    <chr>                           <dbl> <chr> 
+    ##  1 "Henry Jonathan \"Hank\" Pym"       1 no    
+    ##  2 "Janet van Dyne"                    1 yes   
+    ##  3 "Anthony Edward \"Tony\" Stark"     1 yes   
+    ##  4 "Robert Bruce Banner"               1 yes   
+    ##  5 "Thor Odinson"                      1 yes   
+    ##  6 "Thor Odinson"                      2 no    
+    ##  7 "Steven Rogers"                     1 yes   
+    ##  8 "Clinton Francis Barton"            1 yes   
+    ##  9 "Clinton Francis Barton"            2 yes   
+    ## 10 "Pietro Maximoff"                   1 yes
 
 Based on these datasets calculate the average number of deaths an
 Avenger suffers.
+
+``` r
+summary <- deaths |>
+  group_by(Name.Alias) |>
+  summarise(
+    death_count = sum(Death == "yes", na.rm = TRUE)
+  )
+mean(summary$death_count, na.rm = TRUE)
+```
+
+    ## [1] 0.5460123
 
 ## Individually
 
@@ -90,12 +177,41 @@ possible.
 
 > Quote the statement you are planning to fact-check.
 
+“Out of 173 listed Avengers, my analysis found that 69 had died at least
+one time after they joined the team. That’s about 40 percent of all
+people who have ever signed on to the team.”
+
 ### Include the code
 
 Make sure to include the code to derive the (numeric) fact for the
 statement
 
+``` r
+total_avengers <- av |>
+  summarise(total = n())
+total_avengers
+```
+
+    ##   total
+    ## 1   173
+
+``` r
+dead_avengers <- deaths |>
+  group_by(Name.Alias) |>
+  summarise(any_death= any(Death == "yes")) |>
+  summarise(count = sum(any_death))
+
+dead_avengers / total_avengers * 100 # Death percentage
+```
+
+    ##      count
+    ## 1 36.99422
+
 ### Include your answer
+
+The author claims that about 40 percent of all people who have ever
+signed to the team has died at least once, the data says that about 37%
+of people who join die, therefore their claim is accurate.
 
 Include at least one sentence discussing the result of your
 fact-checking endeavor.
