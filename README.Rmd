@@ -109,7 +109,45 @@ dead_avengers / total_avengers * 100 # Death percentage
 ### Include your answer
 The author claims that about 40 percent of all people who have ever signed to the team has died at least once, the data says that about ~37% (%36.99422) of people who join die, therefore their claim is accurate.
 
+### FiveThirtyEight Statement
 
-Include at least one sentence discussing the result of your fact-checking endeavor.
+Madison M:
+
+"There’s a 2-in-3 chance that a member of the Avengers returned from their first stint in the afterlife, but only a 50 percent chance they recovered from a second or third death."
+
+### Include the code
+
+Make sure to include the code to derive the (numeric) fact for the statement
+```{r}
+
+returns <- return
+
+death_revival <- deaths |>
+  filter(Death == "yes") |> 
+  inner_join(returns, by = c("Name.Alias", "Time")) 
+
+revival_rate_1 <- death_revival |>
+  filter(Time == 1) |>
+  summarise(
+    Total_D1 = n(),
+    Returned_D1 = sum(Return == "yes"),
+    Rate_D1 = Returned_D1 / Total_D1
+  )
+
+revival_rate_2_3 <- death_revival |>
+  filter(Time == 2 | Time == 3) |>
+  summarise(
+    Total_D2_3 = n(),
+    Returned_D2_3 = sum(Return == "yes"),
+    Rate_D2_3 = Returned_D2_3 / Total_D2_3
+  )
+
+cat("Revival rate for the FIRST death (Time 1):", round(revival_rate_1$Rate_D1, 4), " (2/3 = 0.6667)", "\n")
+cat("Revival rate for the SECOND and THIRD deaths (Time 2 and 3):", round(revival_rate_2_3$Rate_D2_3, 4), " (50% = 0.5000)")
+
+```
+### Include your answer
+
+The claim of a 2-in-3 chance (66.67%) is not supported by the data, it shows a revival rate of 0.5657 (56.57%) for the first death. This shows that while the rate is high, it is lower than the claimed two-thirds chance.The claim of a 50 percent (0.50) chance is (0.50), so the revival rate for the second and third deaths is accurate.
 
 Upload your changes to the repository. Discuss and refine answers as a team.
