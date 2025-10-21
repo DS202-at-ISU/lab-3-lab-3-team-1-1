@@ -276,5 +276,68 @@ that while the rate is high, it is lower than the claimed two-thirds
 chance.The claim of a 50 percent (0.50) chance is (0.50), so the revival
 rate for the second and third deaths is accurate.
 
+### FiveThirtyEight Statement
+
+Caleb Moe:
+
+“The MVP of the Earth-616 Marvel Universe Avengers has to be Jocasta —
+an android based on Janet van Dyne and built by Ultron — who has been
+destroyed five times and then recovered five times.”
+
+### Include the code
+
+Make sure to include the code to derive the (numeric) fact for the
+statement
+
+``` r
+jocasta <- returns |>
+  filter(tolower(Name.Alias) == "jocasta")
+
+
+jocasta
+```
+
+    ## # A tibble: 5 × 3
+    ##   Name.Alias  Time Return
+    ##   <chr>      <dbl> <chr> 
+    ## 1 Jocasta        1 yes   
+    ## 2 Jocasta        2 yes   
+    ## 3 Jocasta        3 yes   
+    ## 4 Jocasta        4 yes   
+    ## 5 Jocasta        5 yes
+
+``` r
+ordered_by_returns <- returns |>
+  filter(Name.Alias != "" & !is.na(Name.Alias)) |>
+  group_by(Name.Alias) |>
+  summarise(num_returns = n()) |>
+  arrange(desc(num_returns))
+
+ordered_by_returns
+```
+
+    ## # A tibble: 63 × 2
+    ##    Name.Alias             num_returns
+    ##    <chr>                        <int>
+    ##  1 Jocasta                          5
+    ##  2 Mar-Vell                         3
+    ##  3 Anthony Ludgate Druid            2
+    ##  4 Ares                             2
+    ##  5 Clinton Francis Barton           2
+    ##  6 Dennis Dunphy                    2
+    ##  7 Eric Kevin Masterson             2
+    ##  8 Heather Douglas                  2
+    ##  9 Jonathan Hart                    2
+    ## 10 Marrina Smallwood                2
+    ## # ℹ 53 more rows
+
+### Include your answer
+
+In terms of returning after death, Jocasta is indeed the MVP of the
+Earth-616 Marvel Universe Avengers. The next closest in terms of returns
+is Mar-Vell with 3. Therefore, my analysis supports the writer’s claim
+that she has returned the most out of any character. It also supports
+the claim that they have returned 5 times.
+
 Upload your changes to the repository. Discuss and refine answers as a
 team.
